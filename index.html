@@ -10,11 +10,23 @@
     }
     /* Ajustar el botón de AR */
     model-viewer::part(default-ar-button) {
-      width: 50px !important;
-      height: 50px !important;
-      bottom: 10px !important;
-      right: 10px !important;
-      background-size: 40px 40px !important;
+      width: 60px !important;
+      height: 60px !important;
+      bottom: 15px !important;
+      right: 15px !important;
+      background-size: 50px 50px !important;
+      background-color: rgba(0, 0, 0, 0.5) !important; /* Fondo semitransparente para mayor visibilidad */
+      border-radius: 10px !important;
+    }
+    /* Alternativa por si el selector anterior no funciona */
+    model-viewer [slot="ar-button"] {
+      width: 60px !important;
+      height: 60px !important;
+      bottom: 15px !important;
+      right: 15px !important;
+      background-size: 50px 50px !important;
+      background-color: rgba(0, 0, 0, 0.5) !important;
+      border-radius: 10px !important;
     }
   </style>
 </head>
@@ -24,7 +36,10 @@
     ar 
     camera-controls 
     auto-rotate 
-    alt="Modelo 3D en realidad aumentada">
+    alt="Modelo 3D en realidad aumentada"
+    environment-image="neutral"
+    shadow-intensity="1"
+    exposure="1">
   </model-viewer>
   <div>
     <p><a href="intent://arvr.google.com/scene-viewer/1.0?file=https://raw.githubusercontent.com/OrigenArtificial/metro3d/main/metro%2001.glb#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=https://developers.google.com/ar;end;">Abrir en AR (Android)</a></p>

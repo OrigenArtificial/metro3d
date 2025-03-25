@@ -35,7 +35,7 @@
   <model-viewer 
     src="https://raw.githubusercontent.com/OrigenArtificial/metro3d/main/metro%2001.glb"
     ar 
-    ar-modes="webxr scene-viewer quick-look"
+    ar-modes="quick-look"
     ar-placement="floor" 
     ar-scale="auto"
     ios-src="https://raw.githubusercontent.com/OrigenArtificial/metro3d/main/metro%2001.glb"
@@ -47,21 +47,5 @@
     exposure="1.5" 
     shadow-softness="0.5">
   </model-viewer>
-  <script>
-    // Forzar la activación del modo AR al cargar la página
-    document.addEventListener('DOMContentLoaded', () => {
-      const modelViewer = document.querySelector('model-viewer');
-      if (modelViewer) {
-        // Asegurarse de que el modelo esté cargado antes de activar AR
-        modelViewer.addEventListener('load', () => {
-          modelViewer.activateAR();
-        });
-        // Intentar activar AR inmediatamente después de que el componente esté listo
-        modelViewer.addEventListener('model-visibility', () => {
-          modelViewer.activateAR();
-        });
-      }
-    });
-  </script>
 </body>
 </html>

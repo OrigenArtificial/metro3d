@@ -29,10 +29,6 @@
       background-color: rgba(0, 0, 0, 0.5) !important;
       border-radius: 15px !important;
     }
-    /* Ocultar el modelo hasta que entre en modo AR */
-    model-viewer:not([ar-status="session-started"]) {
-      display: none !important;
-    }
   </style>
 </head>
 <body>
@@ -56,6 +52,11 @@
     document.addEventListener('DOMContentLoaded', () => {
       const modelViewer = document.querySelector('model-viewer');
       if (modelViewer) {
+        // Escuchar cuando el modelo esté listo para activar AR
+        modelViewer.addEventListener('load', () => {
+          modelViewer.activateAR();
+        });
+        // Intentar activar AR inmediatamente
         modelViewer.activateAR();
       }
     });

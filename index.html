@@ -1,25 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Mi Modelo 3D en AR</title>
-  <!-- Importa la biblioteca Model Viewer -->
+  <title>Metro 3D en AR</title>
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
-  <!-- Opcional: Estilo para centrar el modelo -->
   <style>
     model-viewer {
       width: 100%;
       height: 500px;
     }
+    /* Ajustar el botón de AR */
+    model-viewer::part(default-ar-button) {
+      width: 40px;
+      height: 40px;
+      bottom: 20px;
+      right: 20px;
+      background-size: 30px 30px;
+    }
   </style>
 </head>
 <body>
-  <!-- El componente que muestra el modelo -->
-<model-viewer 
-  src="https://raw.githubusercontent.com/OrigenArtificial/metro3d/main/metro%2001.glb"
-  ar 
-  camera-controls 
-  auto-rotate 
-  alt="Modelo 3D en realidad aumentada">
-</model-viewer>
+  <model-viewer 
+    src="https://raw.githubusercontent.com/OrigenArtificial/metro3d/main/metro01.glb"
+    ar 
+    ar-modes="webxr scene-viewer quick-look"
+    camera-controls 
+    auto-rotate 
+    alt="Modelo 3D en realidad aumentada">
+  </model-viewer>
 </body>
 </html>

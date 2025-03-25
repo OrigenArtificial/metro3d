@@ -10,26 +10,25 @@
     }
     /* Ajustar el botón de AR */
     model-viewer::part(default-ar-button) {
-      width: 40px;
-      height: 40px;
-      bottom: 20px;
-      right: 20px;
-      background-size: 30px 30px;
+      width: 50px !important;
+      height: 50px !important;
+      bottom: 10px !important;
+      right: 10px !important;
+      background-size: 40px 40px !important;
     }
   </style>
 </head>
 <body>
   <model-viewer 
-    src="https://raw.githubusercontent.com/OrigenArtificial/metro3d/main/metro01.glb"
+    src="https://raw.githubusercontent.com/OrigenArtificial/metro3d/main/metro%2001.glb"
     ar 
     camera-controls 
     auto-rotate 
     alt="Modelo 3D en realidad aumentada">
   </model-viewer>
   <div>
-    <a href="intent://arvr.google.com/scene-viewer/1.0?file=https://raw.githubusercontent.com/OrigenArtificial/metro3d/main/metro01.glb#Intent;scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;S.browser_fallback_url=https://developers.google.com/ar;end;">Abrir en AR (Android)</a>
-    <br>
-    <a href="https://raw.githubusercontent.com/OrigenArtificial/metro3d/main/metro01.glb#ios">Abrir en AR (iOS)</a>
+    <p><a href="intent://arvr.google.com/scene-viewer/1.0?file=https://raw.githubusercontent.com/OrigenArtificial/metro3d/main/metro%2001.glb#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;S.browser_fallback_url=https://developers.google.com/ar;end;">Abrir en AR (Android)</a></p>
+    <p><a href="https://raw.githubusercontent.com/OrigenArtificial/metro3d/main/metro%2001.glb#ios">Abrir en AR (iOS)</a></p>
   </div>
 </body>
 </html>

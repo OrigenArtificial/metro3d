@@ -6,45 +6,26 @@
   <style>
     model-viewer {
       width: 100%;
-      height: 100vh; /* Ocupa toda la altura de la pantalla */
+      height: 500px;
     }
     /* Ajustar el botón de AR */
     model-viewer::part(default-ar-button) {
-      width: 120px !important; /* Duplicamos el tamaño de 60px a 120px */
-      height: 120px !important;
-      bottom: 15px !important;
-      right: 15px !important;
-      background-size: 100px 100px !important; /* Ajustamos el tamaño del ícono */
-      background-color: rgba(0, 0, 0, 0.5) !important; /* Fondo semitransparente */
-      border-radius: 15px !important;
-    }
-    /* Alternativa por si el selector anterior no funciona */
-    model-viewer [slot="ar-button"] {
-      width: 120px !important;
-      height: 120px !important;
-      bottom: 15px !important;
-      right: 15px !important;
-      background-size: 100px 100px !important;
-      background-color: rgba(0, 0, 0, 0.5) !important;
-      border-radius: 15px !important;
+      width: 40px;
+      height: 40px;
+      bottom: 20px;
+      right: 20px;
+      background-size: 30px 30px;
     }
   </style>
 </head>
 <body>
   <model-viewer 
-    src="https://raw.githubusercontent.com/OrigenArtificial/metro3d/main/metro%2001.glb"
+    src="https://raw.githubusercontent.com/OrigenArtificial/metro3d/main/metro01.glb"
     ar 
-    ar-placement="floor" 
-    ar-scale="auto"
-    ios-src="https://raw.githubusercontent.com/OrigenArtificial/metro3d/main/metro%2001.glb"
+    ar-modes="webxr scene-viewer quick-look"
     camera-controls 
     auto-rotate 
-    alt="Modelo 3D en realidad aumentada"
-    environment-image="neutral"
-    shadow-intensity="1"
-    exposure="1.5" 
-    shadow-softness="0.5"
-    auto-activate-ar>
+    alt="Modelo 3D en realidad aumentada">
   </model-viewer>
 </body>
 </html>

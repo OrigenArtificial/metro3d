@@ -2,30 +2,59 @@
 <html>
 <head>
   <title>Metro 3D en AR</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #000; /* Fondo negro por si el modelo no se carga */
+    }
     model-viewer {
       width: 100%;
-      height: 500px;
+      height: 100vh; /* Ocupa toda la altura de la pantalla */
+      background-color: transparent; /* Fondo transparente para el visor */
     }
     /* Ajustar el botón de AR */
     model-viewer::part(default-ar-button) {
-      width: 40px;
-      height: 40px;
-      bottom: 20px;
-      right: 20px;
-      background-size: 30px 30px;
+      width: 120px !important;
+      height: 120px !important;
+      bottom: 15px !important;
+      right: 15px !important;
+      background-size: 100px 100px !important;
+      background-color: rgba(0, 0, 0, 0.5) !important;
+      border-radius: 15px !important;
+    }
+    /* Alternativa por si el selector anterior no funciona */
+    model-viewer [slot="ar-button"] {
+      width: 120px !important;
+      height: 120px !important;
+      bottom: 15px !important;
+      right: 15px !important;
+      background-size: 100px 100px !important;
+      background-color: rgba(0, 0, 0, 0.5) !important;
+      border-radius: 15px !important;
     }
   </style>
 </head>
 <body>
   <model-viewer 
-    src="https://raw.githubusercontent.com/OrigenArtificial/metro3d/main/metro01.glb"
+    src="https://raw.githubusercontent.com/OrigenArtificial/metro3d/main/metro%2001.glb"
     ar 
     ar-modes="webxr scene-viewer quick-look"
+    ar-placement="floor" 
+    ar-scale="auto"
+    ios-src="https://raw.githubusercontent.com/OrigenArtificial/metro3d/main/metro%2001.glb"
     camera-controls 
     auto-rotate 
-    alt="Modelo 3D en realidad aumentada">
+    alt="Modelo 3D en realidad aumentada"
+    environment-image="https://modelviewer.dev/shared-assets/environments/SpruitSunrise_1K.hdr"
+    skybox-image="https://modelviewer.dev/shared-assets/environments/SpruitSunrise_1K.hdr"
+    shadow-intensity="1.5"
+    exposure="1.8" 
+    shadow-softness="0.5"
+    auto-activate-ar>
   </model-viewer>
 </body>
 </html>

@@ -17,11 +17,42 @@
             width: 100%;
             height: 100%;
         }
+        #start-ar-button {  /* Estilos para el botón de iniciar AR */
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 1000; /* Asegura que el botón esté sobre la escena AR */
+        }
+        #start-ar-button:hover {
+            background-color: #367c39;
+        }
+        #mensaje-error {  /* Estilos para el mensaje de error */
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 1000;
+            display: none; /* Inicialmente oculto */
+        }
     </style>
 </head>
 <body>
     <div id="ar-container">
         <canvas id="ar-canvas"></canvas>
+        <button id="start-ar-button">Iniciar Realidad Aumentada</button>
+        <div id="mensaje-error"></div>
     </div>
     <script>
         // Escena y cámara de Three.js
@@ -46,6 +77,7 @@
             metroModel.position.set(0, 0, -5);
         }, undefined, function (error) {
             console.error('Error al cargar el modelo del metro', error);
+            mostrarMensajeError('No se pudo cargar el modelo 3D. Verifica la URL y la conexión.'); // Muestra el error
         });
 
         // Función de animación
@@ -57,18 +89,40 @@
             renderer.render(scene, camera);
         }
 
-        // Iniciar AR (ejemplo básico -  necesitarás adaptar esto)
+        // Función para iniciar AR
         function startAR() {
-             navigator.mediaDevices.getUserMedia({
+            const sessionInit = {
+                requiredFeatures: ['viewer-3d'], // 'viewer-3d' es la característica necesaria para ver modelos 3D en AR
+                optionalFeatures: ['dom-overlay'], // Permite superponer elementos HTML (como el botón)
+                domOverlay: { root: document.getElementById('ar-container') }
+            };
+            navigator.mediaDevices.getUserMedia({
                 video: {
                     facingMode: 'environment'
                 }
             }).then(function(stream) {
                 renderer.xr.enabled = true;
-                renderer.xr.setSession(stream);
-                animate();
+                navigator.xr.requestSession('immersive-ar', sessionInit).then(function (session) {
+                    renderer.xr.setSession(session);
+
+                    // Oculta el botón de inicio AR después de iniciar la sesión
+                    document.getElementById('start-ar-button').style.display = 'none';
+
+                    session.addEventListener('end', function () {
+                        renderer.xr.enabled = false;
+                        // Muestra el botón de nuevo si quieres permitir reiniciar la sesión
+                        document.getElementById('start-ar-button').style.display = 'block';
+                    });
+
+                    animate();
+                }).catch(function (error) {
+                    console.error("Error al iniciar la sesión de AR", error);
+                    mostrarMensajeError('No se pudo iniciar la sesión de AR: ' + error.message);
+                    renderer.xr.enabled = false; // Asegúrate de desactivar la sesión XR en caso de error.
+                });
             }).catch(function(err) {
                 console.error("Error al obtener la cámara", err);
+                mostrarMensajeError('No se pudo acceder a la cámara: ' + err.message);
             });
         }
 
@@ -79,8 +133,15 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // Iniciar la experiencia AR (esto normalmente estaría vinculado a un evento del usuario, como un botón)
-        // startAR(); // Descomenta esto y vincúlalo a un botón en tu HTML
+        // Iniciar la experiencia AR al hacer clic en el botón
+        document.getElementById('start-ar-button').addEventListener('click', startAR);
+
+        function mostrarMensajeError(mensaje) {
+            const mensajeErrorElement = document.getElementById('mensaje-error');
+            mensajeErrorElement.textContent = mensaje;
+            mensajeErrorElement.style.display = 'block'; // Muestra el mensaje
+        }
+
     </script>
 </body>
 </html>

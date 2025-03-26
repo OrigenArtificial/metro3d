@@ -1,178 +1,208 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Visor AR con QR</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: #000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      overflow: hidden;
-    }
-    #ar-container {
-      width: 100%;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    #ar-model {
-      display: none; /* Inicialmente oculto, se muestra con JavaScript */
-      width: 100%;
-      height: 100%;
-    }
-    #qr-video {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      width: 320px;
-      height: 240px;
-      display: none;
-      z-index: 1000;
-    }
-    #qr-canvas {
-      display: none;
-    }
-    #scan-button {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      padding: 10px 20px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      cursor: pointer;
-      z-index: 1000;
-    }
-    #instructions {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      color: white;
-      padding: 10px 20px;
-      background-color: rgba(0, 0, 0, 0.7);
-      border-radius: 5px;
-      z-index: 1000;
-      text-align: center;
-    }
-  </style>
+    <title>Visor AR con QR</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #ar-container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #ar-model {
+            display: none;
+            /* Inicialmente oculto, se muestra con JavaScript */
+            width: 100%;
+            height: 100%;
+        }
+
+        #qr-video {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 320px;
+            height: 240px;
+            display: none;
+            z-index: 1000;
+        }
+
+        #qr-canvas {
+            display: none;
+        }
+
+        #scan-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        #instructions {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            padding: 10px 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 5px;
+            z-index: 1000;
+            text-align: center;
+        }
+
+        #error-message {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 0, 0, 0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 1000;
+            display: none;
+        }
+    </style>
 </head>
 <body>
-  <button id="scan-button">Escanear QR</button>
-  <video id="qr-video" playsinline></video>
-  <canvas id="qr-canvas" style="display: none;"></canvas>
-  <div id="ar-container">
-    <model-viewer
-      id="ar-model"
-      src="https://raw.githubusercontent.com/OrigenArtificial/metro3d/main/metro%2001.glb"
-      ar
-      ar-modes="webxr scene-viewer quick-look"
-      ar-placement="floor"
-      ar-scale="auto"
-      ios-src="https://raw.githubusercontent.com/OrigenArtificial/metro3d/main/metro%2001.usdz"  
-      camera-controls
-      auto-rotate
-      alt="Modelo 3D en realidad aumentada"
-      environment-image="https://modelviewer.dev/shared-assets/environments/SpruitSunrise_1K.hdr"
-      skybox-image="https://modelviewer.dev/shared-assets/environments/SpruitSunrise_1K.hdr"
-      shadow-intensity="1.5"
-      exposure="1.8"
-      shadow-softness="0.5"
-      style="display: none;"  
-    >
-      <div slot="error" style="color: white; text-align: center;">
-        No se pudo cargar el modelo. Por favor, verifica tu conexión a internet o intenta de nuevo más tarde.
-      </div>
-    </model-viewer>
-  </div>
-  <div id="instructions">
-    Escanea el código QR para ver el modelo 3D en AR.
-  </div>
+    <button id="scan-button">Escanear QR</button>
+    <video id="qr-video" playsinline></video>
+    <canvas id="qr-canvas" style="display: none;"></canvas>
+    <div id="ar-container">
+        <model-viewer id="ar-model"
+                      src="https://raw.githubusercontent.com/OrigenArtificial/metro3d/main/metro%2001.glb"
+                      ar
+                      ar-modes="webxr scene-viewer quick-look"
+                      ar-placement="floor"
+                      ar-scale="auto"
+                      ios-src="https://raw.githubusercontent.com/OrigenArtificial/metro3d/main/metro%2001.usdz"
+                      camera-controls
+                      auto-rotate
+                      alt="Modelo 3D en realidad aumentada"
+                      environment-image="https://modelviewer.dev/shared-assets/environments/SpruitSunrise_1K.hdr"
+                      skybox-image="https://modelviewer.dev/shared-assets/environments/SpruitSunrise_1K.hdr"
+                      shadow-intensity="1.5"
+                      exposure="1.8"
+                      shadow-softness="0.5"
+                      style="display: none;">
+            <div slot="error" style="color: white; text-align: center;">
+                No se pudo cargar el modelo. Por favor, verifica tu conexión a internet o intenta de nuevo más tarde.
+            </div>
+        </model-viewer>
+    </div>
+    <div id="instructions">
+        Escanea el código QR para ver el modelo 3D en AR.
+    </div>
+    <div id="error-message"></div>
 
-  <script>
-    const scanButton = document.getElementById('scan-button');
-    const video = document.getElementById('qr-video');
-    const canvas = document.getElementById('qr-canvas');
-    const context = canvas.getContext('2d');
-    const arModelViewer = document.getElementById('ar-model');
-    const arContainer = document.getElementById('ar-container');
-    const instructionsLabel = document.getElementById('instructions');
+    <script>
+        const scanButton = document.getElementById('scan-button');
+        const video = document.getElementById('qr-video');
+        const canvas = document.getElementById('qr-canvas');
+        const context = canvas.getContext('2d');
+        const arModelViewer = document.getElementById('ar-model');
+        const arContainer = document.getElementById('ar-container');
+        const instructionsLabel = document.getElementById('instructions');
+        const errorMessageLabel = document.getElementById('error-message');
 
-    let isScanning = false;
+        let isScanning = false;
+        let scanAttempted = false; // Track if scanning was attempted
 
-    scanButton.addEventListener('click', () => {
-      if (!isScanning) {
-        isScanning = true;
-        scanButton.textContent = 'Escaneando...';
-        instructionsLabel.textContent = 'Apunta la cámara al código QR';
-        video.style.display = 'block';
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-          .then(stream => {
-            video.srcObject = stream;
-            video.play();
-            requestAnimationFrame(scan);
-          })
-          .catch(err => {
-            console.error('Error accessing camera:', err);
-            isScanning = false;
-            scanButton.textContent = 'Escanear QR';
-            instructionsLabel.textContent = 'Escanea el código QR para ver el modelo 3D en AR.';
-          });
-      }
-    });
-
-    function scan() {
-      if (!isScanning) return;
-
-      if (video.readyState === video.HAVE_ENOUGH_DATA) {
-        canvas.height = video.videoHeight;
-        canvas.width = video.videoWidth;
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-        const code = jsQR(imageData.data, imageData.width, imageData.height, {
-          inversionAttempts: 'dontInvert',
+        scanButton.addEventListener('click', () => {
+            if (!isScanning) {
+                isScanning = true;
+                scanButton.textContent = 'Escaneando...';
+                instructionsLabel.textContent = 'Apunta la cámara al código QR';
+                video.style.display = 'block';
+                navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                    .then(stream => {
+                        video.srcObject = stream;
+                        video.play();
+                        requestAnimationFrame(scan);
+                    })
+                    .catch(err => {
+                        console.error('Error accessing camera:', err);
+                        isScanning = false;
+                        scanButton.textContent = 'Escanear QR';
+                        instructionsLabel.textContent = 'Escanea el código QR para ver el modelo 3D en AR.';
+                        displayErrorMessage('No se pudo acceder a la cámara. Asegúrate de dar permisos a la cámara.');
+                    });
+            }
         });
 
-        if (code) {
-          video.pause();
-          video.srcObject.getTracks().forEach(track => track.stop());
-          video.style.display = 'none';
-          isScanning = false;
-          scanButton.textContent = 'Escanear QR';
-          instructionsLabel.textContent = 'Cargando modelo AR...';
+        function scan() {
+            if (!isScanning) return;
 
-          const url = code.data;
-          console.log('QR Code Data:', url);
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                canvas.height = video.videoHeight;
+                canvas.width = video.videoWidth;
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                    inversionAttempts: 'dontInvert',
+                });
 
-          // Check if it's an Android device to use Scene Viewer
-          const isAndroid = /android/i.test(navigator.userAgent);
+                if (code) {
+                    video.pause();
+                    video.srcObject.getTracks().forEach(track => track.stop());
+                    video.style.display = 'none';
+                    isScanning = false;
+                    scanButton.textContent = 'Escanear QR';
+                    instructionsLabel.textContent = 'Cargando modelo AR...';
+                    scanAttempted = true; // Mark that scan was successful
 
-          if (isAndroid) {
-              // Construct the Scene Viewer URL.
-              const sceneViewerUrl = `https://arvr.google.com/scene-viewer/viewer?file=${encodeURIComponent(url)}`;
-              console.log("Opening Scene Viewer:", sceneViewerUrl);
-              window.location.href = sceneViewerUrl; // Redirect to Scene Viewer
-          } else {
-              // For iOS and other cases, use the model-viewer directly (Quick Look)
-              arModelViewer.setAttribute('src', url);
-              arModelViewer.style.display = 'block';
-              instructionsLabel.style.display = 'none';
-          }
+                    const url = code.data;
+                    console.log('QR Code Data:', url);
 
+                    // Check if it's an Android device to use Scene Viewer
+                    const isAndroid = /android/i.test(navigator.userAgent);
 
-        } else {
-          requestAnimationFrame(scan);
+                    if (isAndroid) {
+                        // Construct the Scene Viewer URL.
+                        const sceneViewerUrl = `https://arvr.google.com/scene-viewer/viewer?file=${encodeURIComponent(url)}`;
+                        console.log("Opening Scene Viewer:", sceneViewerUrl);
+                        window.location.href = sceneViewerUrl; // Redirect to Scene Viewer
+                    } else {
+                        // For iOS and other cases, use the model-viewer directly (Quick Look)
+                        arModelViewer.setAttribute('src', url);
+                        arModelViewer.style.display = 'block';
+                        instructionsLabel.style.display = 'none';
+                    }
+                } else {
+                    requestAnimationFrame(scan);
+                }
+            } else {
+                requestAnimationFrame(scan);
+            }
         }
-      } else {
-        requestAnimationFrame(scan);
-      }
-    }
-  </script>
+
+        function displayErrorMessage(message) {
+            const errorMessageLabel = document.getElementById('error-message');
+            errorMessageLabel.textContent = message;
+            errorMessageLabel.style.display = 'block';
+            setTimeout(() => {
+                errorMessageLabel.style.display = 'none';
+            }, 5000); // Hide after 5 seconds
+        }
+    </script>
 </body>
 </html>

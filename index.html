@@ -36,6 +36,10 @@
       background-color: rgba(0, 0, 0, 0.5) !important;
       border-radius: 15px !important;
     }
+    /* Mensaje de carga */
+    model-viewer::part(default-progress-bar) {
+      background-color: #4CAF50 !important; /* Barra de carga verde */
+    }
   </style>
 </head>
 <body>
@@ -53,8 +57,7 @@
     skybox-image="https://modelviewer.dev/shared-assets/environments/SpruitSunrise_1K.hdr"
     shadow-intensity="1.5"
     exposure="1.8" 
-    shadow-softness="0.5"
-    auto-activate-ar>
+    shadow-softness="0.5">
   </model-viewer>
 </body>
 </html>

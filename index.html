@@ -1,209 +1,86 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Visor AR con QR</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visor AR del Metro</title>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.139.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.139.0/examples/js/loaders/GLTFLoader.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-        }
-
+        body { margin: 0; overflow: hidden; }
         #ar-container {
-            width: 100%;
+            width: 100vw;
             height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            position: relative;
         }
-
-        #ar-model {
-            display: none;
-            /* Inicialmente oculto, se muestra con JavaScript */
+        #ar-canvas {
+            display: block;
             width: 100%;
             height: 100%;
-        }
-
-        #qr-video {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            width: 320px;
-            height: 240px;
-            display: none;
-            z-index: 1000;
-        }
-
-        #qr-canvas {
-            display: none;
-        }
-
-        #scan-button {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-            z-index: 1000;
-        }
-
-        #instructions {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: white;
-            padding: 10px 20px;
-            background-color: rgba(0, 0, 0, 0.7);
-            border-radius: 5px;
-            z-index: 1000;
-            text-align: center;
-        }
-
-        #error-message {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(255, 0, 0, 0.8);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            z-index: 1000;
-            display: none;
         }
     </style>
 </head>
 <body>
-    <button id="scan-button">Escanear QR</button>
-    <video id="qr-video" playsinline></video>
-    <canvas id="qr-canvas" style="display: none;"></canvas>
     <div id="ar-container">
-        <model-viewer id="ar-model"
-                      src="https://raw.githubusercontent.com/OrigenArtificial/metro3d/main/metro%2001.glb"
-                      ar
-                      ar-modes="webxr scene-viewer quick-look"
-                      ar-placement="floor"
-                      ar-scale="auto"
-                      ios-src="https://raw.githubusercontent.com/OrigenArtificial/metro3d/main/metro%2001.usdz"
-                      camera-controls
-                      auto-rotate
-                      alt="Modelo 3D en realidad aumentada"
-                      environment-image="https://modelviewer.dev/shared-assets/environments/SpruitSunrise_1K.hdr"
-                      skybox-image="https://modelviewer.dev/shared-assets/environments/SpruitSunrise_1K.hdr"
-                      shadow-intensity="1.5"
-                      exposure="1.8"
-                      shadow-softness="0.5"
-                      style="display: none;">
-            <div slot="error" style="color: white; text-align: center;">
-                No se pudo cargar el modelo. Por favor, verifica tu conexión a internet o intenta de nuevo más tarde.
-            </div>
-        </model-viewer>
+        <canvas id="ar-canvas"></canvas>
     </div>
-    <div id="instructions">
-        Escanea el código QR para ver el modelo 3D en AR.
-    </div>
-    <div id="error-message"></div>
-
     <script>
-        const scanButton = document.getElementById('scan-button');
-        const video = document.getElementById('qr-video');
-        const canvas = document.getElementById('qr-canvas');
-        const context = canvas.getContext('2d');
-        const arModelViewer = document.getElementById('ar-model');
-        const arContainer = document.getElementById('ar-container');
-        const instructionsLabel = document.getElementById('instructions');
-        const errorMessageLabel = document.getElementById('error-message');
+        // Escena y cámara de Three.js
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('ar-canvas'), antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.xr.enabled = true;
 
-        let isScanning = false;
-        let scanAttempted = false; // Track if scanning was attempted
+        // Iluminación
+        const ambientLight = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
+        scene.add(ambientLight);
 
-        scanButton.addEventListener('click', () => {
-            if (!isScanning) {
-                isScanning = true;
-                scanButton.textContent = 'Escaneando...';
-                instructionsLabel.textContent = 'Apunta la cámara al código QR';
-                video.style.display = 'block';
-                navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-                    .then(stream => {
-                        video.srcObject = stream;
-                        video.play();
-                        requestAnimationFrame(scan);
-                    })
-                    .catch(err => {
-                        console.error('Error accessing camera:', err);
-                        isScanning = false;
-                        scanButton.textContent = 'Escanear QR';
-                        instructionsLabel.textContent = 'Escanea el código QR para ver el modelo 3D en AR.';
-                        displayErrorMessage('No se pudo acceder a la cámara. Asegúrate de dar permisos a la cámara.');
-                    });
-            }
+        // Cargador de GLTF y carga del modelo
+        const loader = new THREE.GLTFLoader();
+        let metroModel = null;
+        const metroURL = 'https://raw.githubusercontent.com/OrigenArtificial/metro3d/main/metro%2001.glb'; // **TU URL AQUÍ**
+
+        loader.load(metroURL, function (gltf) {
+            metroModel = gltf.scene;
+            scene.add(metroModel);
+            metroModel.position.set(0, 0, -5);
+        }, undefined, function (error) {
+            console.error('Error al cargar el modelo del metro', error);
         });
 
-        function scan() {
-            if (!isScanning) return;
-
-            if (video.readyState === video.HAVE_ENOUGH_DATA) {
-                canvas.height = video.videoHeight;
-                canvas.width = video.videoWidth;
-                context.drawImage(video, 0, 0, canvas.width, canvas.height);
-                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-                const code = jsQR(imageData.data, imageData.width, imageData.height, {
-                    inversionAttempts: 'dontInvert',
-                });
-
-                if (code) {
-                    video.pause();
-                    video.srcObject.getTracks().forEach(track => track.stop());
-                    video.style.display = 'none';
-                    isScanning = false;
-                    scanButton.textContent = 'Escanear QR';
-                    instructionsLabel.textContent = 'Cargando modelo AR...';
-                    scanAttempted = true; // Mark that scan was successful
-
-                    const url = code.data;
-                    console.log('QR Code Data:', url);
-
-                    // Check if it's an Android device to use Scene Viewer
-                    const isAndroid = /android/i.test(navigator.userAgent);
-
-                    if (isAndroid) {
-                        // Construct the Scene Viewer URL.
-                        const sceneViewerUrl = `https://arvr.google.com/scene-viewer/viewer?file=${encodeURIComponent(url)}`;
-                        console.log("Opening Scene Viewer:", sceneViewerUrl);
-                        window.location.href = sceneViewerUrl; // Redirect to Scene Viewer
-                    } else {
-                        // For iOS and other cases, use the model-viewer directly (Quick Look)
-                        arModelViewer.setAttribute('src', url);
-                        arModelViewer.style.display = 'block';
-                        instructionsLabel.style.display = 'none';
-                    }
-                } else {
-                    requestAnimationFrame(scan);
-                }
-            } else {
-                requestAnimationFrame(scan);
+        // Función de animación
+        function animate() {
+            requestAnimationFrame(animate);
+            if (metroModel) {
+                metroModel.rotation.y += 0.01;
             }
+            renderer.render(scene, camera);
         }
 
-        function displayErrorMessage(message) {
-            const errorMessageLabel = document.getElementById('error-message');
-            errorMessageLabel.textContent = message;
-            errorMessageLabel.style.display = 'block';
-            setTimeout(() => {
-                errorMessageLabel.style.display = 'none';
-            }, 5000); // Hide after 5 seconds
+        // Iniciar AR (ejemplo básico -  necesitarás adaptar esto)
+        function startAR() {
+             navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: 'environment'
+                }
+            }).then(function(stream) {
+                renderer.xr.enabled = true;
+                renderer.xr.setSession(stream);
+                animate();
+            }).catch(function(err) {
+                console.error("Error al obtener la cámara", err);
+            });
         }
+
+        // Manejar el cambio de tamaño de la ventana
+        window.addEventListener('resize', function () {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Iniciar la experiencia AR (esto normalmente estaría vinculado a un evento del usuario, como un botón)
+        // startAR(); // Descomenta esto y vincúlalo a un botón en tu HTML
     </script>
 </body>
 </html>
-
